@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>엑셀·CSV 파일 병합기</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Pretendard","Malgun Gothic",sans-serif;color:#17253c;background:#f5f7fb;font-synthesis:none}
+    *{box-sizing:border-box}body{margin:0}button,select,input{font:inherit}button{cursor:pointer}
+    .shell{max-width:1120px;margin:auto;padding:44px 24px 70px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.13em;color:#3475ed;margin-bottom:12px}
+    h1{font-size:clamp(29px,4vw,42px);letter-spacing:-.045em;margin:0 0 10px}p{color:#69768b;line-height:1.65;margin:0}
+    .top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:30px}.top .mini{font-size:13px;color:#718099}
+    .layout{display:grid;grid-template-columns:1fr 310px;gap:20px}.panel{background:white;border:1px solid #e5eaf3;border-radius:19px;padding:24px;box-shadow:0 5px 22px #20345f08}
+    h2{font-size:17px;margin:0 0 17px;letter-spacing:-.02em}.drop{border:2px dashed #bfd0f2;border-radius:15px;background:#f8fbff;padding:46px 14px;text-align:center;transition:.2s}
+    .drop.over{background:#eaf2ff;border-color:#367cf5}.upload-icon{width:52px;height:52px;border-radius:16px;background:#e8f0ff;color:#2d70ed;display:grid;place-items:center;font-size:25px;margin:0 auto 15px}
+    .drop strong{display:block;font-size:17px;margin-bottom:6px}.drop p{font-size:13px;margin-bottom:20px}
+    .primary{background:#316df0;color:white;border:1px solid #316df0;border-radius:10px;padding:12px 19px;font-weight:800}.primary:hover{background:#215bd6}.primary:disabled{opacity:.45;cursor:not-allowed}
+    .ghost{background:white;border:1px solid #dce4f0;color:#43536e;padding:9px 13px;border-radius:10px;font-weight:700}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin:25px 0 13px}.section-head h2{margin:0}.muted{font-size:13px;color:#8a96a8}
+    .files{display:grid;gap:9px}.file{display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid #e8edf5;border-radius:11px}.filetag{font-size:10px;min-width:46px;text-align:center;font-weight:800;padding:7px 5px;border-radius:7px;color:#2865d7;background:#eaf2ff}.filetag.csv{color:#117a60;background:#e4f7f0}.filename{font-size:13px;font-weight:750;overflow-wrap:anywhere}.filemeta{font-size:11px;color:#91a0b2;margin-top:3px}.remove{margin-left:auto;border:0;background:none;color:#8a96a8;font-size:20px;padding:5px 8px}.remove:hover{color:#dc3850}
+    .empty{color:#9aa6b7;text-align:center;border:1px solid #e8edf5;border-radius:10px;padding:25px;font-size:13px}.options{display:grid;gap:17px}.field-label{font-size:13px;font-weight:800;display:block;margin-bottom:8px}.select{width:100%;background:white;border:1px solid #dce4ef;border-radius:10px;padding:11px;color:#25344c}
+    .hint{font-size:12px;color:#8491a5;margin-top:7px;line-height:1.55}.radioitem{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.5;margin-bottom:9px}.radioitem input{accent-color:#326df0;margin-top:3px}
+    .checkbox{display:flex;align-items:center;gap:9px;font-size:13px}.checkbox input{accent-color:#326df0}
+    .statgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:22px 0}.stat{background:#f5f8fe;padding:16px 13px;border-radius:11px}.stat b{display:block;font-size:24px;letter-spacing:-.04em}.stat span{font-size:12px;color:#78879d}
+    .download-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}.download-group button{padding:13px 8px}.status{padding:12px 13px;border-radius:10px;background:#eff5ff;color:#2d61c2;font-size:12px;line-height:1.6;margin-top:15px}.status.error{background:#fff1f1;color:#bf3440}.status.ok{background:#eaf9f2;color:#167653}
+    .preview{margin-top:20px}.tablewrap{overflow:auto;max-height:350px;border:1px solid #e5eaf2;border-radius:12px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #edf0f6;max-width:280px;overflow:hidden;text-overflow:ellipsis}th{position:sticky;top:0;background:#f3f7fd;color:#4d6184;font-weight:800}tr:last-child td{border-bottom:none}.footnote{font-size:12px;margin-top:11px}.badge{font-size:12px;color:#2865d7;background:#e9f1ff;border-radius:99px;padding:5px 10px}
+    @media(max-width:800px){.layout{grid-template-columns:1fr}.top{display:block}.top .mini{margin-top:10px}.shell{padding:30px 15px}.panel{padding:18px}.drop{padding:35px 10px}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header class="top"><div><div class="eyebrow">DATA UTILITY / FILE MERGER</div><h1>엑셀·CSV 파일 병합기</h1><p>여러 파일을 업로드하고 하나의 데이터로 합친 뒤 원하는 형식으로 저장하세요.</p></div><div class="mini">CSV + XLSX · 브라우저 내 처리</div></header>
+  <div class="layout">
+    <section>
+      <div class="panel"><h2>01. 파일 업로드</h2><div id="drop" class="drop" role="button" tabindex="0" aria-label="파일 추가"><div class="upload-icon">⇧</div><strong>파일을 이곳에 끌어다 놓으세요</strong><p>CSV, XLSX 파일을 여러 개 동시에 선택할 수 있습니다.</p><button class="primary" type="button" id="pick">+ 파일 선택하기</button><input id="input" type="file" accept=".csv,.xlsx" multiple hidden></div>
+        <div class="section-head"><h2>업로드한 파일 <span id="fileCount" class="badge">0개</span></h2><button id="clear" class="ghost" type="button">전체 삭제</button></div><div id="files" class="files"><div class="empty">아직 업로드된 파일이 없습니다.</div></div>
+      </div>
+      <div class="panel preview"><div class="section-head" style="margin:0 0 15px"><h2>03. 병합 데이터 미리보기</h2><span class="muted" id="previewCaption">병합 전</span></div><div class="tablewrap"><table><thead id="thead"><tr><th>데이터를 병합하면 이곳에 표시됩니다.</th></tr></thead><tbody id="tbody"></tbody></table></div><p class="footnote">병합 결과의 처음 10행만 표시됩니다. 다운로드에는 전체 데이터가 포함됩니다.</p></div>
+    </section>
+    <aside><div class="panel"><h2>02. 병합 설정</h2><div class="options">
+      <div><label class="field-label" for="mergeMode">열 병합 방식</label><select id="mergeMode" class="select"><option value="name">열 이름 기준으로 정렬 (권장)</option><option value="position">열 위치 기준으로 병합</option></select><p class="hint">열 이름 기준: 파일마다 열 순서가 달라도 같은 제목의 열을 맞춥니다.</p></div>
+      <div><span class="field-label">첫 번째 행 처리</span><label class="radioitem"><input type="radio" name="headers" value="yes" checked>첫 번째 행을 열 제목으로 사용</label><label class="radioitem"><input type="radio" name="headers" value="no">열 제목 없음 (A, B, C... 자동 지정)</label></div>
+      <div><label class="checkbox"><input type="checkbox" id="unique">완전히 동일한 행 제거</label></div>
+      <div><label class="checkbox"><input type="checkbox" id="source">원본 파일명 열 추가</label></div>
+      <div><label class="field-label" for="sheetMode">XLSX 시트 선택</label><select id="sheetMode" class="select"><option value="first">각 파일의 첫 번째 시트</option><option value="all">각 파일의 모든 시트</option></select></div>
+    </div><div class="statgrid"><div class="stat"><b id="statFiles">0</b><span>파일</span></div><div class="stat"><b id="statRows">0</b><span>데이터 행</span></div><div class="stat"><b id="statCols">0</b><span>열</span></div></div>
+    <button type="button" class="primary" id="merge" style="width:100%">데이터 병합하기</button><div id="status" class="status" role="status">파일을 추가한 후 병합 버튼을 눌러 주세요.</div>
+    <h2 style="margin-top:25px">04. 결과 다운로드</h2><div class="download-group"><button class="ghost" id="csv" disabled>↓ CSV 저장</button><button class="primary" id="xlsx" disabled>↓ XLSX 저장</button></div><p class="hint">CSV는 UTF-8 BOM을 포함하여 한글 엑셀 호환성을 높였습니다.</p>
+    </div></aside>
+  </div>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+let uploaded=[], result=null, nextId=0;
+function notify(message,kind=''){const el=$('status');el.textContent=message;el.className='status'+(kind?' '+kind:'');}
+function bytes(n){return n<1024?`${n} B`:n<1048576?`${(n/1024).toFixed(1)} KB`:`${(n/1048576).toFixed(1)} MB`;}
+function invalidate(){result=null;$('csv').disabled=$('xlsx').disabled=true;$('statRows').textContent=$('statCols').textContent='0';$('previewCaption').textContent='병합 전';$('thead').innerHTML='<tr><th>데이터를 병합하면 이곳에 표시됩니다.</th></tr>';$('tbody').replaceChildren();}
+function renderFiles(){ $('fileCount').textContent=uploaded.length+'개';$('statFiles').textContent=uploaded.length;const root=$('files');root.replaceChildren();if(!uploaded.length){const e=document.createElement('div');e.className='empty';e.textContent='아직 업로드된 파일이 없습니다.';root.append(e);return;}for(const f of uploaded){const line=document.createElement('div');line.className='file';const ext=f.file.name.toLowerCase().endsWith('.csv')?'CSV':'XLSX';const tag=document.createElement('span');tag.className='filetag'+(ext==='CSV'?' csv':'');tag.textContent=ext;const detail=document.createElement('div');detail.style.minWidth='0';const name=document.createElement('div');name.className='filename';name.textContent=f.file.name;const meta=document.createElement('div');meta.className='filemeta';meta.textContent=bytes(f.file.size);detail.append(name,meta);const del=document.createElement('button');del.className='remove';del.textContent='×';del.title='파일 삭제';del.setAttribute('aria-label',f.file.name+' 삭제');del.onclick=()=>{uploaded=uploaded.filter(x=>x.id!==f.id);renderFiles();invalidate();notify('파일 목록이 변경되었습니다. 다시 병합해 주세요.');};line.append(tag,detail,del);root.append(line);}}
+function addFiles(list){const arr=Array.from(list);let added=0;for(const file of arr){if(!/\.(xlsx|csv)$/i.test(file.name))continue;uploaded.push({id:++nextId,file});added++;}renderFiles();invalidate();notify(added?`${added}개 파일을 추가했습니다. 데이터 병합하기를 누르세요.`:'CSV 또는 XLSX 파일을 선택해 주세요.',added?'':'error');$('input').value='';}
+$('input').addEventListener('change',e=>addFiles(e.target.files));$('pick').onclick=()=>$('input').click();$('drop').addEventListener('click',e=>{if(e.target.id!=='pick')$('input').click()});$('drop').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('input').click()}});
+for(const name of ['dragenter','dragover'])$('drop').addEventListener(name,e=>{e.preventDefault();$('drop').classList.add('over')});for(const name of ['dragleave','drop'])$('drop').addEventListener(name,e=>{e.preventDefault();$('drop').classList.remove('over')});$('drop').addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+$('clear').onclick=()=>{uploaded=[];renderFiles();invalidate();notify('파일을 모두 삭제했습니다.');};for(const id of ['mergeMode','unique','source','sheetMode'])$(id).addEventListener('change',()=>{invalidate();notify('설정이 변경되었습니다. 다시 병합해 주세요.');});document.querySelectorAll('input[name="headers"]').forEach(el=>el.addEventListener('change',()=>{invalidate();notify('설정이 변경되었습니다. 다시 병합해 주세요.');}));
+function colName(i){let s='';for(i++;i;i=Math.floor((i-1)/26))s=String.fromCharCode(65+(i-1)%26)+s;return s;}
+function uniqueName(text,seen){let s=String(text??'').trim()||'제목 없음';const base=s;let n=2;while(seen.has(s))s=`${base} (${n++})`;seen.add(s);return s;}
+function cellValue(cell){if(cell==null)return '';if(cell instanceof Date)return cell.toISOString();return typeof cell==='object'?JSON.stringify(cell):cell;}
+function getSheetRows(ws){return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,blankrows:false});}
+function sanitizeForExcel(v){if(typeof v==='string'&&/^[\t\r\n ]*[=+@]/.test(v))return "'"+v;return v;}
+async function readFile(file){const array=await file.arrayBuffer();const book=XLSX.read(array,{type:'array',cellDates:true});return book;}
+function preview(headers,rows){const head=$('thead'),body=$('tbody');head.replaceChildren();body.replaceChildren();const tr=document.createElement('tr');for(const h of headers){const th=document.createElement('th');th.textContent=h;tr.append(th);}head.append(tr);for(const row of rows.slice(0,10)){const tr=document.createElement('tr');for(let i=0;i<headers.length;i++){const td=document.createElement('td');td.textContent=String(row[i]??'');td.title=td.textContent;tr.append(td);}body.append(tr);} $('previewCaption').textContent=`전체 ${rows.length.toLocaleString('ko-KR')}행 · 미리보기 최대 10행`;}
+$('merge').onclick=async()=>{
+ if(!uploaded.length){notify('먼저 병합할 파일을 업로드해 주세요.','error');return;}
+ if(typeof XLSX==='undefined'){notify('엑셀 처리 라이브러리를 불러오지 못했습니다. 인터넷 연결 상태를 확인한 뒤 새로고침해 주세요.','error');return;}
+ $('merge').disabled=true;invalidate();notify('파일을 읽고 병합하는 중입니다…');await new Promise(r=>setTimeout(r,20));
+ try{
+  const useHeader=document.querySelector('input[name="headers"]:checked').value==='yes';const byName=$('mergeMode').value==='name';const addSource=$('source').checked;const dedupe=$('unique').checked;const entries=[];const errors=[];
+  for(const f of uploaded){try{const wb=await readFile(f.file);const sheets=$('sheetMode').value==='all'?wb.SheetNames:wb.SheetNames.slice(0,1);for(const sheet of sheets){const matrix=getSheetRows(wb.Sheets[sheet]);if(!matrix.length)continue;const width=Math.max(...matrix.map(x=>x.length),0);const localSeen=new Set();const headers=useHeader?Array.from({length:width},(_,i)=>uniqueName(matrix[0]?.[i]??'',localSeen)):Array.from({length:width},(_,i)=>colName(i));const rows=matrix.slice(useHeader?1:0).filter(row=>row.some(x=>x!==''&&x!==null&&x!==undefined));entries.push({headers,rows,origin:f.file.name+(sheets.length>1?` / ${sheet}`:'')});}}
+    catch(e){errors.push(`${f.file.name}: ${e.message||String(e)}`);}}
+  if(!entries.length)throw Error('읽을 수 있는 데이터 행이나 시트가 없습니다.'+(errors.length?' '+errors.join(' | '):''));
+  const headers=[],headerSet=new Set();let maxWidth=0;
+  for(const ent of entries){maxWidth=Math.max(maxWidth,ent.headers.length);if(byName){for(const h of ent.headers){if(!headerSet.has(h)){headers.push(h);headerSet.add(h);}}}}
+  if(!byName)for(let i=0;i<maxWidth;i++)headers.push(useHeader?(entries[0].headers[i]||colName(i)):colName(i));
+  let originHeader='원본 파일명';while(headers.includes(originHeader))originHeader+=' (출처)';if(addSource)headers.push(originHeader);
+  const mapped=[],seenRows=new Set();let removed=0;
+  for(const ent of entries){const positions=byName?ent.headers.map(h=>headers.indexOf(h)):ent.headers.map((_,i)=>i);for(const row of ent.rows){const mappedRow=Array(headers.length).fill('');for(let i=0;i<positions.length;i++)if(positions[i]>=0)mappedRow[positions[i]]=cellValue(row[i]);if(addSource)mappedRow[headers.length-1]=ent.origin;if(dedupe){const key=JSON.stringify(mappedRow);if(seenRows.has(key)){removed++;continue;}seenRows.add(key);}mapped.push(mappedRow);}}
+  if(!mapped.length)throw Error('데이터 행이 없습니다. 첫 번째 행 설정을 확인해 주세요.');
+  result={headers,rows:mapped};$('statRows').textContent=mapped.length.toLocaleString('ko-KR');$('statCols').textContent=headers.length.toLocaleString('ko-KR');preview(headers,mapped);$('csv').disabled=$('xlsx').disabled=false;
+  let message=`병합 완료: ${entries.length}개 시트의 ${mapped.length.toLocaleString('ko-KR')}행, ${headers.length}개 열`;if(removed)message+=` · 중복 ${removed}행 제거`;if(errors.length)message+=` · 읽기 실패 ${errors.length}개: ${errors.join(' | ')}`;notify(message,errors.length?'error':'ok');
+ }catch(e){notify('병합 실패: '+(e.message||String(e)),'error');}finally{$('merge').disabled=false;}
+};
+function saveBlob(blob,filename){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+function makeSheet(){const safe=[result.headers,...result.rows.map(row=>row.map(sanitizeForExcel))];const ws=XLSX.utils.aoa_to_sheet(safe);ws['!cols']=result.headers.map((h,i)=>({wch:Math.min(42,Math.max(12,String(h).length*2+4))}));ws['!autofilter']={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:result.rows.length,c:result.headers.length-1}})};return ws;}
+$('csv').onclick=()=>{if(!result)return;try{const ws=makeSheet();const csv=XLSX.utils.sheet_to_csv(ws,{FS:',',RS:'\r\n'});saveBlob(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}),'병합_데이터.csv');notify('CSV 파일 다운로드를 시작했습니다.','ok');}catch(e){notify('CSV 저장 실패: '+e.message,'error');}};
+$('xlsx').onclick=()=>{if(!result)return;try{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,makeSheet(),'병합 데이터');const data=XLSX.write(wb,{bookType:'xlsx',type:'array'});saveBlob(new Blob([data],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'병합_데이터.xlsx');notify('XLSX 파일 다운로드를 시작했습니다.','ok');}catch(e){notify('XLSX 저장 실패: '+e.message,'error');}};
+</script>
+<!-- 엑셀 파일 읽기/쓰기를 위한 SheetJS 라이브러리 (최초 실행 및 사용 시 인터넷 연결 필요) -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" onerror="document.getElementById('status').textContent='엑셀 라이브러리 로드 실패: 인터넷 연결을 확인하고 새로고침해 주세요.'"></script>
+</body></html>
